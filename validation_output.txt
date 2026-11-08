@@ -1,0 +1,113 @@
+=== 1. Two-look O'Brien-Fleming (Lan-DeMets) design ===
+LDOF upper bounds: 2.962588 1.968596 
+[PASS] LDOF 2-look bounds = 2.9626 / 1.9686
+HSD(-4) upper bounds: 2.749966 1.981131  (not OF)
+
+=== 2. gsSurv documented example ===
+N = 459.6244 459.6244 459.6244  events (n.I) = 32.13048 64.26096 96.39145 
+[PASS] gsSurv example N ~ 460, events ~ 97
+
+=== 3. gsSurv gamma scaling / T=NULL / piecewise enrollment ===
+gamma=10,R=12: gamma derived = 51.13672  N = 613.6406  events = 353.3363 
+[PASS] gsSurv scales gamma up to reach power
+T=NULL: gamma = 10  R = 45.6418  T = 26.71017 41.38524 57.6418 
+[PASS] T=NULL keeps gamma fixed at 10
+piecewise gamma=c(5,10), R=c(2,10): N = 623.0405  events = 353.4045 
+[PASS] piecewise enrollment works
+
+=== 4. nNormal / nBinomial return numeric scalars ===
+nNormal = 42.02969  (hand calc total 42.04)
+[PASS] nNormal total N ~ 42
+nBinomial(Difference) = 433.6399 
+[PASS] nBinomial total N ~ 434
+
+=== 5. Source app.R and test build_design across endpoints ===
+TTE sample-size (default) power = 0.9  N = 575.5  bounds = 2.963, 1.969 
+[PASS] TTE sample-size (default) power within 0.01 of 0.9
+[PASS] TTE sample-size (default) design_table runs
+[PASS] TTE sample-size (default) design_text runs
+[PASS] TTE sample-size (default) generated code reproduces bounds
+Binomial difference power = 0.9  N = 439.3  bounds = 2.963, 1.969 
+[PASS] Binomial difference power within 0.01 of 0.9
+[PASS] Binomial difference design_table runs
+[PASS] Binomial difference design_text runs
+[PASS] Binomial difference generated code reproduces bounds
+Binomial risk ratio power = 0.9  N = 456  bounds = 2.963, 1.969 
+[PASS] Binomial risk ratio power within 0.01 of 0.9
+[PASS] Binomial risk ratio design_table runs
+[PASS] Binomial risk ratio design_text runs
+[PASS] Binomial risk ratio generated code reproduces bounds
+Binomial odds ratio power = 0.9  N = 443.9  bounds = 2.963, 1.969 
+[PASS] Binomial odds ratio power within 0.01 of 0.9
+[PASS] Binomial odds ratio design_table runs
+[PASS] Binomial odds ratio design_text runs
+[PASS] Binomial odds ratio generated code reproduces bounds
+Normal power = 0.9  N = 42.2  bounds = 2.963, 1.969 
+[PASS] Normal power within 0.01 of 0.9
+[PASS] Normal design_table runs
+[PASS] Normal design_text runs
+[PASS] Normal generated code reproduces bounds
+Fixed design N power = 0.9  N = 42.2  bounds = 2.963, 1.969 
+[PASS] Fixed design N power within 0.01 of 0.9
+[PASS] Fixed design N design_table runs
+[PASS] Fixed design N design_text runs
+[PASS] Fixed design N generated code reproduces bounds
+
+=== 6. TTE adjust modes and calendar timing ===
+TTE number of events power = 0.9  N = 331.4  bounds = 2.963, 1.969 
+[PASS] TTE number of events power within 0.01 of 0.9
+[PASS] TTE number of events design_table runs
+[PASS] TTE number of events design_text runs
+[PASS] TTE number of events generated code reproduces bounds
+  events = 330.3  N = 573.6 
+TTE study duration power = 0.9  N = 432.9  bounds = 2.963, 1.969 
+[PASS] TTE study duration power within 0.01 of 0.9
+[PASS] TTE study duration design_table runs
+[PASS] TTE study duration design_text runs
+[PASS] TTE study duration generated code reproduces bounds
+  solved study duration = 55.29  months
+TTE calendar timing power = 0.9  N = 649.9  bounds = 2.47, 1.997 
+[PASS] TTE calendar timing power within 0.01 of 0.9
+[PASS] TTE calendar timing design_table runs
+[PASS] TTE calendar timing design_text runs
+[PASS] TTE calendar timing generated code reproduces bounds
+  calendar times = 12, 18 
+TTE ramp-up 2 months power = 0.9  N = 584.4  bounds = 2.963, 1.969 
+[PASS] TTE ramp-up 2 months power within 0.01 of 0.9
+[PASS] TTE ramp-up 2 months design_table runs
+[PASS] TTE ramp-up 2 months design_text runs
+[PASS] TTE ramp-up 2 months generated code reproduces bounds
+
+=== 7. Spending functions through build_design ===
+HSD(-4) upper power = 0.9  N = 578.6  bounds = 2.75, 1.981 
+[PASS] HSD(-4) upper power within 0.01 of 0.9
+[PASS] HSD(-4) upper design_table runs
+[PASS] HSD(-4) upper design_text runs
+[PASS] HSD(-4) upper generated code reproduces bounds
+Pocock (Lan-DeMets) upper power = 0.9  N = 637.3  bounds = 2.157, 2.201 
+[PASS] Pocock (Lan-DeMets) upper power within 0.01 of 0.9
+[PASS] Pocock (Lan-DeMets) upper design_table runs
+[PASS] Pocock (Lan-DeMets) upper design_text runs
+[PASS] Pocock (Lan-DeMets) upper generated code reproduces bounds
+Custom points upper power = 0.9  N = 603.1  bounds = 2.326, 2.076 
+[PASS] Custom points upper power within 0.01 of 0.9
+[PASS] Custom points upper design_table runs
+[PASS] Custom points upper design_text runs
+[PASS] Custom points upper generated code reproduces bounds
+Two-sided, beta-spending LDOF power = 0.9  N = 1250.7  bounds = 2.963, 1.969 
+[PASS] Two-sided, beta-spending LDOF power within 0.01 of 0.9
+[PASS] Two-sided, beta-spending LDOF design_table runs
+[PASS] Two-sided, beta-spending LDOF design_text runs
+[PASS] Two-sided, beta-spending LDOF generated code reproduces bounds
+
+=== 8. Bound update via update_design_bounds ===
+original upper: 2.962588 2.359018 2.014084 
+updated upper (spending fn): 2.962588 2.711632 1.982017 
+[PASS] bound update keeps first bound, shifts later bounds
+spend-all final bound: 1.976577  spending-fn final bound: 2.122722 
+[PASS] spend-all strategy changes final bound
+[PASS] update to 4 analyses works
+[PASS] update code runs and reproduces bounds
+[PASS] gsBoundSummary on updated design runs
+
+Done.
