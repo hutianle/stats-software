@@ -45,12 +45,16 @@ jobs:
       # ("Unsupported url scheme: RSPM/src/contrib/..." on run #4, and
       # "CRAN/src/contrib/..." on run #5 after relabelling to the bare
       # word CRAN). The manifest must carry a full URL, so relabel them
-      # to https://cloud.r-project.org. Verified locally with
+      # to https://packagemanager.posit.co/cran/__linux__/jammy/latest. Verified locally with
       # rsconnect::writeManifest: a full-URL Repository passes through
       # into the manifest untouched, while a bare name does not.
+      # Run #6 failed here with "Permission denied" on
+      # /opt/R/4.3.3/lib/R/library/boot/DESCRIPTION: the loop must skip
+      # the read-only system library and only touch writable libraries
+      # (where setup-r-dependencies actually installed the packages).
       - name: Relabel RSPM packages with full CRAN URL
         run: |
-          Rscript -e 'n <- 0L; for (lib in .libPaths()) { for (d in list.files(lib, pattern = "^DESCRIPTION$", recursive = TRUE, full.names = TRUE)) { x <- readLines(d, warn = FALSE); hit <- grepl("^Repository: (RSPM|CRAN)$", x); if (any(hit)) { x[hit] <- "Repository: https://cloud.r-project.org"; writeLines(x, d); n <- n + 1L } } }; cat("Relabelled", n, "package DESCRIPTION(s) to https://cloud.r-project.org\n")'
+          Rscript -e 'n <- 0L; for (lib in .libPaths()) { if (file.access(lib, 2L) != 0L) next; for (d in list.files(lib, pattern = "^DESCRIPTION$", recursive = TRUE, full.names = TRUE)) { x <- readLines(d, warn = FALSE); hit <- grepl("^Repository: (RSPM|CRAN)$", x); if (any(hit)) { x[hit] <- "Repository: https://packagemanager.posit.co/cran/__linux__/jammy/latest"; writeLines(x, d); n <- n + 1L } } }; cat("Relabelled", n, "package DESCRIPTION(s) to https://packagemanager.posit.co/cran/__linux__/jammy/latest\n")'
         shell: bash
 
       - name: Deploy to shinyapps.io
