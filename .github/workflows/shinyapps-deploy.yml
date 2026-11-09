@@ -1,12 +1,10 @@
 # Deploy the Shiny app to shinyapps.io on push to main.
 #
-# Required repository secrets (set by the account owner in the GitHub
-# repository Settings -> Secrets and variables -> Actions; never put
-# tokens or secrets in this file):
-#   SHINYAPPS_TOKEN  - shinyapps.io account token
-#   SHINYAPPS_SECRET - shinyapps.io account secret
+# Required repository secrets (set by the account owner in the GitHub repository Settings -> Secrets and variables -> Actions; never put tokens or secrets in this file):
+# SHINYAPPS_TOKEN - shinyapps.io account token
+# SHINYAPPS_SECRET - shinyapps.io account secret
 # Optional repository variable:
-#   SHINYAPPS_ACCOUNT - shinyapps.io account name (defaults to hutianle)
+# SHINYAPPS_ACCOUNT - shinyapps.io account name (defaults to hutianle)
 name: Deploy to shinyapps.io
 
 on:
@@ -38,6 +36,12 @@ jobs:
             any::jsonlite
             any::rmarkdown
             any::rsconnect
+
+      # Fix for the shinyapps.io image build: packages installed from Posit Package Manager record `Repository: RSPM` in their DESCRIPTION, and the shinyapps.io builder cannot resolve the bare "RSPM" scheme ("Unsupported url scheme: RSPM/src/contrib/..."). These are plain CRAN packages, so relabel them as CRAN before rsconnect builds the bundle manifest (verified locally: Repository CRAN records Source "CRAN", which shinyapps.io resolves).
+      - name: Relabel RSPM packages as CRAN for the bundle manifest
+        run: |
+          Rscript -e 'n <- 0L; for (lib in .libPaths()) { for (d in list.files(lib, pattern = "^DESCRIPTION$", recursive = TRUE, full.names = TRUE)) { x <- readLines(d, warn = FALSE); hit <- grepl("^Repository: RSPM$", x); if (any(hit)) { x[hit] <- "Repository: CRAN"; writeLines(x, d); n <- n + 1L } } }; cat("Relabelled", n, "package DESCRIPTION(s) from RSPM to CRAN\n")'
+        shell: bash
 
       - name: Deploy to shinyapps.io
         env:
