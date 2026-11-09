@@ -1,0 +1,53 @@
+# Deploy the Shiny app to shinyapps.io on push to main.
+#
+# Required repository secrets (set by the account owner in the GitHub
+# repository Settings -> Secrets and variables -> Actions; never put
+# tokens or secrets in this file):
+#   SHINYAPPS_TOKEN  - shinyapps.io account token
+#   SHINYAPPS_SECRET - shinyapps.io account secret
+# Optional repository variable:
+#   SHINYAPPS_ACCOUNT - shinyapps.io account name (defaults to hutianle)
+name: Deploy to shinyapps.io
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app.R'
+      - '.github/workflows/shinyapps-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.3'
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::shiny
+            any::gsDesign
+            any::ggplot2
+            any::DT
+            any::jsonlite
+            any::rmarkdown
+            any::rsconnect
+
+      - name: Deploy to shinyapps.io
+        env:
+          SHINYAPPS_TOKEN: ${{ secrets.SHINYAPPS_TOKEN }}
+          SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
+          SHINYAPPS_ACCOUNT: ${{ vars.SHINYAPPS_ACCOUNT }}
+        run: |
+          rsconnect::setAccountInfo(
+            name = if (nzchar(Sys.getenv("SHINYAPPS_ACCOUNT"))) Sys.getenv("SHINYAPPS_ACCOUNT") else "hutianle",
+            token = Sys.getenv("SHINYAPPS_TOKEN"),
+            secret = Sys.getenv("SHINYAPPS_SECRET")
+          )
+          rsconnect::deployApp(appDir = ".", appName = "gsdesign-explorer")
+        shell: Rscript {0}
