@@ -1,0 +1,30 @@
+=== 1. Default design (TTE, LDOF) ===
+[PASS] default design builds
+[PASS] default design power ~ 0.9
+[PASS] text output mentions sample size
+[PASS] spending summary shows total alpha
+[PASS] report code contains gsSurv
+[PASS] tabular output renders
+[PASS] bounds plot renders
+
+=== 2. Endpoint switching ===
+[PASS] binomial design builds
+[PASS] normal design builds
+[PASS] fixed-design N builds
+
+=== 3. Spending function switching ===
+[PASS] Pocock design builds
+[PASS] custom-points design builds
+
+=== 4. Bound update ===
+[PASS] bound update returns 3 bounds
+[PASS] spend-all changes final bound (final at 0.9)
+[PASS] strategies coincide at full information
+[PASS] updated bounds table renders
+[PASS] update report code contains n.I
+
+=== 5. Save / restore parameter round-trip ===
+[PASS] collect_params covers all registered inputs
+[PASS] restored parameters reproduce the TTE design
+
+Done.

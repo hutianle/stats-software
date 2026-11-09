@@ -68,14 +68,38 @@ shiny::runApp()
 Requires R >= 4.0 and gsDesign >= 3.0 (developed and validated against
 R 4.3.3 and gsDesign 3.11.0).
 
+On Ubuntu, R and the system libraries some packages need can be
+installed with:
+
+```sh
+sudo apt install r-base r-base-dev libxml2-dev libcurl4-openssl-dev \
+  libssl-dev libuv1-dev
+```
+
+Note: on this VM the R packages live in a persistent user library
+(`~/workspace/R/library`) so they survive VM restarts, which wipe the
+system site-library. Install them there and point R at it:
+
+```r
+.libPaths(c("~/workspace/R/library", .libPaths()))
+install.packages(c("shiny", "gsDesign", "ggplot2", "DT", "jsonlite",
+                   "rmarkdown"), lib = "~/workspace/R/library")
+```
+
+or run scripts with `R_LIBS_USER=~/workspace/R/library Rscript ...`.
+
 ## Validation
 
 `test_validation.R` checks the gsDesign API usage and the app's own
 helpers, including that every design type attains its target power and
-that the generated R code reproduces the design exactly:
+that the generated R code reproduces the design exactly. `test_server.R`
+exercises the server reactives and outputs with `shiny::testServer()`
+(no browser needed): default design, endpoint and spending-function
+switching, bound update, and the save/restore parameter round-trip.
 
 ```sh
-Rscript test_validation.R
+R_LIBS_USER=~/workspace/R/library Rscript test_validation.R
+R_LIBS_USER=~/workspace/R/library Rscript test_server.R
 ```
 
 Expected result: 68 checks, all PASS (see `validation_output.txt`).
@@ -129,6 +153,6 @@ Key numbers checked:
 
 ## Repository
 
-Source lives at https://github.com/hutianle/githubtest (the app is
+Source lives at https://github.com/hutianle/stats-software (the app is
 `app.R` in this directory). Push and deployment are done by the
 repository owner; this directory is the working copy only.

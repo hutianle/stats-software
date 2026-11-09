@@ -998,6 +998,9 @@ ui <- navbarPage(
                   "Observed information fractions at completed analyses
                   (comma-separated)",
                   value = "0.5"),
+        numericInput("ub_final_frac",
+                     "Information fraction at final analysis",
+                     value = 1, min = 0.05, max = 1, step = 0.05),
         selectInput("ub_final_strategy",
                     "Final analysis alpha spending strategy",
                     choices = c(
@@ -1009,8 +1012,12 @@ ui <- navbarPage(
                  observed information (n.I) and the planned maximum
                  information (maxn.IPlan). Future interim analyses, if
                  any, are placed at equal information spacing between the
-                 last observed fraction and 1. The final analysis is
-                 always at information fraction 1.")
+                 last observed fraction and the final fraction. The
+                 spend-all strategy only differs from the spending-function
+                 strategy when the final analysis is at less than full
+                 information (final fraction < 1): it then spends all
+                 remaining alpha at the final analysis instead of only the
+                 amount the spending function allocates at that fraction.")
       ),
       mainPanel(
         width = 8,
@@ -1155,13 +1162,14 @@ collect_params <- function(input) {
 # Information fractions for the updated design: observed fractions for the
 # completed analyses, then (if the total number of analyses exceeds the
 # completed ones plus the final) equally spaced future interim fractions
-# between the last observed fraction and 1, then the final analysis at 1.
-update_fracs <- function(obs, m, k_new) {
+# between the last observed fraction and the final fraction, then the final
+# analysis at `final_frac`.
+update_fracs <- function(obs, m, k_new, final_frac = 1) {
   if (k_new < m + 1L) return(NULL)
-  if (k_new == m + 1L) return(c(obs, 1))
+  if (k_new == m + 1L) return(c(obs, final_frac))
   n_future <- k_new - m - 1L
-  future <- obs[m] + (1 - obs[m]) * seq_len(n_future) / (n_future + 1L)
-  c(obs, future, 1)
+  future <- obs[m] + (final_frac - obs[m]) * seq_len(n_future) / (n_future + 1L)
+  c(obs, future, final_frac)
 }
 
 # ---------------------------------------------------------------------------
@@ -1413,6 +1421,7 @@ server <- function(input, output, session) {
     obs <- obs[!is.na(obs)]
     m <- as.integer(input$ub_done)
     k_new <- as.integer(input$ub_n_analyses)
+    final_frac <- suppressWarnings(as.numeric(input$ub_final_frac))
     if (length(obs) != m || any(obs <= 0) || any(obs >= 1) ||
         is.unsorted(obs)) {
       showNotification(paste0("Observed information fractions must be ", m,
@@ -1420,7 +1429,14 @@ server <- function(input, output, session) {
                        type = "error", duration = 8)
       return(NULL)
     }
-    fracs <- update_fracs(obs, m, k_new)
+    if (is.null(final_frac) || length(final_frac) != 1L ||
+        is.na(final_frac) || final_frac <= obs[m] || final_frac > 1) {
+      showNotification("Final information fraction must be greater than
+                       the last observed fraction and at most 1.",
+                       type = "error", duration = 8)
+      return(NULL)
+    }
+    fracs <- update_fracs(obs, m, k_new, final_frac)
     if (is.null(fracs)) {
       showNotification("Total number of analyses must be at least the
                        number completed plus one (the final analysis).",
